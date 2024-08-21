@@ -64,4 +64,8 @@ The goal of this repository is to serve as a one-stop documentation hub for vari
   - Best Blogs and Community Resources
 
 ## Contribution
+<<<<<<< Updated upstream
 This repository is a living document, and contributions are welcome. If you have expertise in any of the covered topics or new ones that could benefit others, feel free to contribute by submitting a pull request.
+=======
+This repository is a living document, and contributions are welcome. If you have expertise in any of the covered topics or new ones that could benefit others, feel free to contribute by submitting a pull request.
+>>>>>>> Stashed changes
