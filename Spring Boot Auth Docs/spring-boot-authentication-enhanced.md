@@ -4,7 +4,7 @@ Welcome, fellow developer! This guide is your go-to reference for securing Java 
 
 > 📚 Detailed guides:
 >
-> 👉 [JWT Guide](./jwt-guide.md)  
+> 👉 [JWT Guide](Spring Boot Auth Docs/jwt-guide-complete.md)  
 > 👉 [OAuth 2.0 Guide](./oauth2-guide.md)
 
 ---
