@@ -171,6 +171,71 @@ E --> F[Client Uses JWT for API Requests]
 
 ---
 
+### 🕒 Short Token Lifetimes and Rotation
+
+- Access tokens should expire in minutes
+- Use refresh token **rotation** to mitigate theft
+- Revoke tokens on logout
+
+---
+
+### 🔒 Store Tokens Securely
+
+- Never store tokens in plaintext
+- Avoid logging full token values
+- Encrypt refresh tokens if stored
+
+---
+
+### ❌ Don’t Use Deprecated Flows
+
+| Deprecated Flow        | Why to Avoid                               |
+|------------------------|--------------------------------------------|
+| Password Grant         | Requires user credentials in client        |
+| Implicit Grant         | Vulnerable to token leakage (via URI)      |
+
+---
+
+### 🧯 Mitigate Common Attacks
+
+| Attack Type     | Mitigation                                    |
+|-----------------|-----------------------------------------------|
+| Redirect URI Mix-up | Validate issuer and use unique `state`   |
+| Token Replay    | Use short token lifespan                     |
+| Open Redirects  | Disallow wildcards in registered URIs        |
+
+---
+
+### 🍪 Secure Cookie Use (If Applicable)
+
+- Use `HttpOnly`, `Secure`, and `SameSite=None` if necessary
+- Don’t store tokens in cookies unless required and safe
+
+---
+
+### 🧰 Update Dependencies Regularly
+
+Stay on latest Spring Security versions to receive best practice defaults and patches.
+
+---
+
+## 📋 Do's and Don'ts Summary
+
+| ✅ Do                                                          | ❌ Don’t                                                              |
+|----------------------------------------------------------------|------------------------------------------------------------------------|
+| Use HTTPS for all endpoints                                    | Don’t transmit tokens or secrets over HTTP                           |
+| Use Authorization Code with PKCE                               | Don’t use Implicit or Password grants                                |
+| Validate redirect URIs strictly                                | Don’t use wildcards/open redirectors                                 |
+| Use `state` parameter to prevent CSRF                          | Don’t ignore CSRF protections                                        |
+| Use least-privilege scope                                      | Don’t over-scope tokens                                              |
+| Make access tokens short-lived; rotate refresh tokens          | Don’t use long-lived reusable tokens                                 |
+| Store client secrets securely                                  | Don’t embed secrets in public/mobile apps                            |
+| Leverage Spring Security’s built-in OAuth 2.0 support          | Don’t implement OAuth from scratch unnecessarily                     |
+| Monitor and log access patterns securely                       | Don’t log raw token strings                                          |
+| Stay updated with OAuth 2.1 and security BCPs                  | Don’t rely on outdated or insecure default configs                   |
+
+---
+
 ## 🛠️ Sample End-to-End Setup
 
 ```java
@@ -221,6 +286,8 @@ curl -H "Authorization: Bearer <your_token>" http://localhost:8080/api/user
 ### 🛡️ Security Guidelines:
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Security best practices](https://cloud.google.com/security/best-practices/)
+- [Spring Authorization Server](https://spring.io/projects/spring-authorization-server)
+- [Spring Security Docs](https://docs.spring.io/spring-security/reference/)
 ### 🧪 Testing Tools:
 - [Reqbin](https://reqbin.com)
 - [Project zap](https://owasp.org/www-project-zap/)
