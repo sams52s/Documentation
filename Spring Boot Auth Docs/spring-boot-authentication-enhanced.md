@@ -4,8 +4,8 @@ Welcome, fellow developer! This guide is your go-to reference for securing Java 
 
 > 📚 Detailed guides:
 >
-> 👉 [JWT Guide](Spring Boot Auth Docs/jwt-guide-complete.md)  
-> 👉 [OAuth 2.0 Guide](./oauth2-guide.md)
+> 👉 [JWT Guide](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/jwt-guide-complete.md) 
+> 👉 [OAuth 2.0 Guide](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/oauth2-guide-complete.md)
 
 ---
 
@@ -64,7 +64,7 @@ JWT enables stateless API authentication.
 Authorization: Bearer <your_jwt_token>
 ```
 
-> 📘 [Full JWT Guide](./jwt-guide.md)  
+> 📘 [Full JWT Guide](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/jwt-guide-complete.md) 
 
 ---
 
@@ -80,7 +80,7 @@ http
   .authorizeRequests(auth -> auth.anyRequest().authenticated());
 ```
 
-> 📘 [Full OAuth 2.0 Guide](./oauth2-guide.md)
+> 📘 [Full OAuth 2.0 Guide](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/oauth2-guide-complete.md)
 
 ---
 
