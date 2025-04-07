@@ -58,13 +58,13 @@ http
 
 JWT enables stateless API authentication.
 
-![JWT Flow](https://miro.medium.com/v2/resize:fit:1200/format:webp/1*bOE7viHcXJWfZp_3MB-syQ.png)
+![JWT Flow](https://miro.medium.com/v2/resize:fit:4800/format:webp/1*gdWtAaRcYkNRZslF4KPQ7Q.png)
 
 ```http
 Authorization: Bearer <your_jwt_token>
 ```
 
-> 📘 [Full JWT Guide](./jwt-guide.md)
+> 📘 [Full JWT Guide](./jwt-guide.md)  
 
 ---
 
@@ -72,7 +72,7 @@ Authorization: Bearer <your_jwt_token>
 
 Authenticate users via third-party providers (GitHub, Google, etc.).
 
-![OAuth2 Flow](https://developer.okta.com/assets-jekyll/blog/oauth-2.0-and-openid-connect-in-spring-boot/oauth2_flow.png)
+![OAuth2 Flow](./images/9c5e8c8a-55c2-4dbc-91c3-dad97b24f81a.png)
 
 ```java
 http
