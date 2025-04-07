@@ -1,10 +1,7 @@
 # 🧾 Complete JWT (JSON Web Token) Guide for Spring Boot
 
-This all-in-one guide explains how JWT works and how to securely implement and validate tokens in Spring Boot applications.
 
----
-
-## 🧭 Beginner-Level Basics
+## 🧭 Basics
 
 ### 🔍 What is JWT?
 
@@ -24,6 +21,7 @@ HEADER.PAYLOAD.SIGNATURE
 | Payload    | Claims (e.g., sub, exp, role)                |
 | Signature  | Ensures token hasn’t been tampered with      |
 
+![JWT Structure](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/images/e2f0e688-c1cd-4c04-a297-6f33a4c58288.png)
 ---
 
 ### ✅ Why Use JWT?
