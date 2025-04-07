@@ -51,6 +51,9 @@ http
 
 ---
 
+### 🔸 Filter Chain Mechanics
+
+
 ### 🧾 JWT (JSON Web Token)
 
 JWT enables stateless API authentication.
@@ -81,7 +84,42 @@ http
 
 ---
 
+## 🚦 OAuth 2.0 vs JWT: Key Differences
+
+| Feature        | OAuth 2.0                            |JWT (JSON Web Token)                |
+|----------------|-------------------------------------|-------------------------------------|
+| What it is        | Authorization framework | Token format |
+| Purpose           | Allows third-party apps to access resources on behalf of a user. | Transports and stores claims securely between parties |
+| Protocol vs Format | Protocol/Standard | Data format (used in OAuth2 or separately) |
+| Use Case | "Hey Google, can I access this user's calendar?" | "Here’s a signed token saying who I am and what I can do." |
+| Token Type | Can use multiple token types (including JWT, opaque tokens) | It is the token |
+| Used for           | Delegated access to protected resources | Authentication and authorization details |
+| Built-in Expiry           | Yes (via access_token and refresh_token) | Yes (via exp claim) |
+| Can be Stateless?  | Not always (depends on token format) | Yes (JWT is self-contained) |
+
 ## 🔄 Spring Security Filter Chain
+
+Spring Security uses a chain of filters that intercepts requests and applies security logic.
+- SecurityContextPersistenceFilter: Restores or initializes the SecurityContext from the session or creates a new one.
+- UsernamePasswordAuthenticationFilter: Handles form-based login authentication.
+- CsrfFilter: Validates CSRF tokens to mitigate cross-site request forgery.
+- FilterSecurityInterceptor: Authorizes requests based on roles and authorities.
+  
+```java
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(customAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+        .formLogin(Customizer.withDefaults())
+        .build();
+}
+
+```
 
 The flow of request processing in Spring Security:
 
@@ -166,10 +204,23 @@ curl -H "Authorization: Bearer <your_token>" http://localhost:8080/api/user
 ---
 
 ## 📚 Linked Resources
-
-- [JWT Guide](./jwt-guide.md)
-- [OAuth 2.0 Guide](./oauth2-guide.md)
+### 📘 Spring Security:
 - [Spring Security Docs](https://spring.io/projects/spring-security)
+- [Spring Security reference](https://docs.spring.io/spring-security/reference/)
+### 🔑 OAuth2:
+- [OAuth 2.0 Guide](./oauth2-guide.md)
 - [OAuth Playground](https://developers.google.com/oauthplayground)
+- [OAuth 2.0 datatracker](https://datatracker.ietf.org/doc/html/rfc6749)
+- [spring boot OAuth 2.0](https://spring.io/guides/tutorials/spring-boot-oauth2/)
+### 🪪 JWT:
+- [JWT Guide](./jwt-guide.md)
 - [JWT.io](https://jwt.io)
+- [JWT Datatracker](https://datatracker.ietf.org/doc/html/rfc7519)
+- [Designing-a-secure-jwt]( https://developer.okta.com/blog/2019/05/01/designing-a-secure-jwt)
+### 🛡️ Security Guidelines:
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Security best practices](https://cloud.google.com/security/best-practices/)
+### 🧪 Testing Tools:
+- [Reqbin](https://reqbin.com)
+- [Project zap](https://owasp.org/www-project-zap/)
+
