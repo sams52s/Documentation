@@ -18,11 +18,12 @@ OAuth 2.0 is an authorization framework that lets applications access user data 
 ---
 ### 🔐 OAuth2 Login Flow:
 
-> The user clicks "Login with GitHub" and is redirected to GitHub's authorization endpoint. \
-> GitHub asks the user to grant permissions and returns an authorization code.\
-> Spring Boot exchanges this code for an access token.\
-> The token is stored in the session and used for subsequent authenticated requests\
+> The user clicks "Login with GitHub" and is redirected to GitHub's authorization endpoint.  
+> GitHub asks the user to grant permissions and returns an authorization code.  
+> Spring Boot exchanges this code for an access token.  
+> The token is stored in the session and used for subsequent authenticated requests.
 
+---
 
 ### 🧑‍🤝‍🧑 Key OAuth 2.0 Terminology
 
@@ -43,7 +44,7 @@ OAuth 2.0 is an authorization framework that lets applications access user data 
 |-----------------------------|--------------------------------------|
 | Authorization Code (PKCE)  | ✅ Recommended for most apps          |
 | Client Credentials         | For server-to-server communication   |
-| Resource Owner Password    | Deprecated (avoid use)               |
+| Resource Owner Password    | ❌ Deprecated (avoid use)               |
 | Refresh Token              | To renew tokens without re-login     |
 
 ---
@@ -51,7 +52,9 @@ OAuth 2.0 is an authorization framework that lets applications access user data 
 The Authorization Code grant is a “three-legged” OAuth flow used by confidential or public clients to obtain an authorization code via the user’s browser, then exchange that code for tokens. It is the core flow for user login via OAuth 2.0 and is often enhanced with PKCE (Proof Key for Code Exchange) for security.
 ![OAUTH Flow](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/images/34811da5-6c97-489a-947c-f6f8a3c91fd2.png)
 
-### ⚙️ Refresh Token Grant
+---
+
+### 🔄 Refresh Token Grant
 
 A Refresh Token is a long-lived token issued by the Authorization Server alongside the access token, which allows the client to obtain new access tokens after the old one expires without involving the user again. The refresh token grant (defined in OAuth 2.0 Section 6) is not exactly a distinct initial flow, but an extension of other flows (Authorization Code, Resource Owner Password) – it cannot be used on its own without a prior user authentication. The process is: when an access token expires (or is about to expire), the client sends a request to the token endpoint with grant_type=refresh_token along with the refresh token and its client credentials. If valid, the Authorization Server responds with a new access token (and possibly a new refresh token) (Diagrams And Movies Of All The OAuth 2.0 Flows). 
 
@@ -59,12 +62,15 @@ A Refresh Token is a long-lived token issued by the Authorization Server alongsi
 
 Using a Refresh Token: The client makes a POST request to the Authorization Server’s token endpoint with grant_type=refresh_token and the previously obtained refresh token. The server validates the refresh token (and client auth) and returns a new access token (often issuing a new refresh token as well, rotating the old one). The client can then use the new access token to continue calling protected APIs.
 In Spring Boot, if you’re using Spring Security’s OAuth2 client support, the refresh token handling can be configured via the OAuth2AuthorizedClientService which will automatically use the refresh token to renew the access token when needed. If implementing an Authorization Server, ensure refresh_token is included in the allowed grant types for clients that need it (and configure token store if using JDBC or JWT for storing refresh tokens). For example, in the earlier Authorization Server config, we allowed "refresh_token" for the Authorization Code client. This means after the user login exchange, the token response will include a refresh_token. The client can later perform:
-POST /oauth/token 
+```
+ POST /oauth/token 
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=refresh_token&
 refresh_token=<refresh_token>&
 client_id=demo-client&client_secret=demo-secret
+
+```
 
 and get a new access_token in response. Refresh tokens typically have a longer lifetime (or no fixed expiry) but can be revoked or invalidated by the Authorization Server.
 
@@ -77,7 +83,8 @@ and get a new access_token in response. Refresh tokens typically have a longer l
 ![OAUTH Refresh Token](https://github.com/sams52s/Documentation/blob/main/Spring%20Boot%20Auth%20Docs/images/A_flowchart_in_the_image_illustrates_the_authentic.png)
 
 ---
-## 💡 Token Structure and Validation
+## ✅  Token Structure and Validation
+
 OAuth 2.0 uses tokens to represent granted authority. The two main token types are access tokens (typically a short-lived token used to access APIs) and refresh tokens (long-lived token to get new access tokens). Access tokens can be opaque (no internal structure, known only by the Authorization Server) or structured. A common format for structured tokens is JWT (JSON Web Token). OAuth 2.0 itself doesn’t mandate JWT, but when using OpenID Connect or certain resource server setups, JWTs are prevalent.
 JWT Structure: A JSON Web Token is composed of three parts: a header, a payload, and a signature, each base64url-encoded and separated by dots. For example, a JWT looks like <header>.<payload>.<signature>.
 
@@ -85,16 +92,20 @@ JWT Structure: A JSON Web Token is composed of three parts: a header, a payload,
 
 Structure of a JWT (JSON Web Token): The header (purple) typically contains metadata like the signing algorithm and token type, e.g. {"alg": "RS256", "typ": "JWT"}. The payload (green) contains the claims – statements about an identity or other data (e.g. user ID, scopes, issuer, expiration time). Common JWT payload claims in OAuth include iss (issuer), sub (subject, usually user ID), aud (audience, the intended recipient like the resource server), exp (expiry timestamp), iat (issued-at time), and possibly scope or authorities. The signature (blue) is generated by taking the Base64URL-encoded header and payload, and signing them with a secret or private key. In the example diagram above, the signature is HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret) for an HMAC-based token (with a secret key known to the server). For RSA or EC algorithms, the signature is created with the issuer’s private key and can be verified with the corresponding public key (JSON Web Tokens - jwt.io).
 Token Validation: When a Resource Server receives an access token on a request (e.g., in the Authorization: Bearer <token> header), it must validate the token before granting access to the resource. There are two general strategies: local validation or introspection. For JWTs, local validation is common – the Resource Server can decode the token, verify the signature (using the Authorization Server’s public key), and check claims like expiration and audience. This is efficient (no network call) and is how Spring Boot’s Resource Server support works by default for JWT. In Spring Security, you would configure the Resource Server with the issuer’s JWKS (JSON Web Key Set) URI or a public key. For example, in application.yml:
+
+``` yml
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: https://your-auth-server.com/oauth2/default
+```
 
 With this, Spring Security will fetch the issuer’s public keys and automatically validate incoming JWTs (verifying signature and iss, aud, exp, etc.). If the token is valid, the request is authenticated with the JWT’s claims. If using opaque tokens, the Resource Server can use introspection: it makes a call to the Authorization Server’s introspection endpoint (/oauth/check_token or RFC 7662 endpoint) with the token to ask if it’s active and get its associated claims. Spring Security supports this via oauth2ResourceServer().opaqueToken() configuration where you set the introspection URI and credentials.
 Spring Boot Resource Server Example: A basic configuration to secure APIs might look like:
-@Bean
+``` java
+ @Bean
 SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(authz -> authz
             .anyRequest().authenticated()
@@ -103,11 +114,12 @@ SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
 
     return http.build();
 }
-
+```
 This, along with the issuer or JWK set URI property, is enough for Spring Boot to start validating JWTs on incoming requests. The Resource Server will automatically reject requests with invalid or expired tokens (returning 401 Unauthorized).
 Token Content: It’s important to design the token’s content (claims or scopes) according to what the Resource Server needs. For instance, include scopes or authorities claims to represent what the token can do. When using JWT access tokens, avoid putting sensitive personal data in the token – as it can be decoded by any party in possession of it (it’s signed, not encrypted by default). If including user info, consider using reference tokens (opaque) or encrypting the JWT (JWT can be encrypted as JWE, though not as common in OAuth).
 Revocation and Expiry: OAuth 2.0 access tokens are usually short-lived (e.g. 5 minutes to 1 hour) to limit exposure. If a JWT is issued, it cannot be revoked easily unless you maintain a blocklist, so short lifetimes mitigate risk. For long-lived sessions, use refresh tokens and rotate them. The framework also provides a token revocation endpoint (RFC 7009) which, if implemented, allows clients to actively revoke tokens (though with JWTs, revocation lists need to be consulted by resource servers, or one might use short expiration and frequent refresh instead).
 
+---
 
 ### 🎯 Typical OAuth 2.0 Use Cases
 
@@ -159,7 +171,7 @@ spring:
 
 ---
 
-### 🔄 JWT vs. Opaque Tokens
+### 🆚 JWT vs. Opaque Tokens
 
 | Token Type | Description                        | Use When                          |
 |------------|------------------------------------|-----------------------------------|
@@ -178,31 +190,6 @@ spring:
 Spring Boot examples:
 - Auth Server: Spring Authorization Server, Keycloak, Okta
 - Resource Server: Spring Security with JWT decoder
-
----
-
-### 🔍 Token Structure (JWT)
-
-```json
-{
-  "sub": "user@example.com",
-  "scope": "read write",
-  "exp": 1712345678,
-  "iss": "https://auth.example.com"
-}
-```
-
-### ✅ Validating JWT in Spring Boot
-
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-      .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-      .oauth2ResourceServer(oauth2 -> oauth2.jwt());
-    return http.build();
-}
-```
 
 ---
 
@@ -238,7 +225,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 | Never hardcode secrets             | Use secure vaults/env variables          |
 
 ---
-|Do|Don’t|
+| ✅ Do | ❌ Don’t |
 |------------------------------------|------------------------------------------|
 |Use HTTPS for all OAuth endpoints and token transport.|Don’t transmit tokens or client secrets over HTTP or via insecure channels.|
 |Use Authorization Code flow with PKCE for user logi1】.|Don’t use Implicit or Password grants (they are deprecate1】.|
